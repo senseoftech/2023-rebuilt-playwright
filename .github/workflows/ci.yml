@@ -49,7 +49,7 @@ jobs:
         run: dotnet build --no-restore -c Release
         working-directory: ./tests/
       - name: Publish
-        run: dotnet publish ./src/Sot.Rebuild.AutomatedTests.csproj -c Release -o ./tests --no-restore --no-build
+        run: dotnet publish ./tests/Sot.Rebuild.AutomatedTests.csproj -c Release -o ./tests --no-restore --no-build
         
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.3

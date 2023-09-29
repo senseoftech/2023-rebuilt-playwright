@@ -56,3 +56,16 @@ jobs:
         with:
           name: AutomatedTests
           path: ./automated-tests
+
+  deploy-to-dev:
+    runs-on: ubuntu-latest
+    needs: 
+      - build-website
+      - build-automated-test
+    steps: 
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v2.1.1
+      with:
+        name: Website
+        path: website
+  

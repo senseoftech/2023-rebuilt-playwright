@@ -68,8 +68,12 @@ jobs:
       with:
         name: Website
         path: website
-    - name: Azure WebApp
-      uses: Azure/webapps-deploy@v2.2.11
+    
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
       with:
-        app-name: dev-rebuild-nantes
-        package: website
+        app-name: 'dev-rebuild-nantes'
+        slot-name: 'Production'
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3C975FA35F2A4D9E90E9DBB4F556695D }}
+        package: .

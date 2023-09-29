@@ -68,4 +68,8 @@ jobs:
       with:
         name: Website
         path: website
-  
+    - name: Azure WebApp
+      uses: Azure/webapps-deploy@v2.2.11
+      with:
+        app-name: dev-rebuild-nantes
+        package: website

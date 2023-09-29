@@ -77,3 +77,45 @@ jobs:
         slot-name: 'Production'
         publish-profile: ${{ secrets.PUBLISHPROFILE_DEV_AZURE }}
         package: .
+
+  test-dev: 
+    runs-on: ubuntu-latest
+    needs: 
+      - deploy-to-dev
+    steps: 
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v2.1.1
+      with:
+        name: AutomatedTests
+        path: AutomatedTests
+
+  deploy-to-staging:
+    runs-on: ubuntu-latest
+    needs: 
+      - test-dev
+    steps: 
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v2.1.1
+      with:
+        name: Website
+        path: website
+    
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'staging-rebuild-nantes'
+        slot-name: 'Production'
+        publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3C975FA35F2A4D9E90E9DBB4F556695D }}
+        package: .
+
+  test-staging: 
+    runs-on: ubuntu-latest
+    needs: 
+      - deploy-to-staging
+    steps: 
+    - name: Download a Build Artifact
+      uses: actions/download-artifact@v2.1.1
+      with:
+        name: AutomatedTests
+        path: AutomatedTests

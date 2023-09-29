@@ -53,5 +53,5 @@ jobs:
         with:
           app-name: 'staging-rebuild-nantes'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3C975FA35F2A4D9E90E9DBB4F556695D }}
+          publish-profile: ${{ secrets.PUBLISHPROFILE_DEV_AZURE }}
           package: .

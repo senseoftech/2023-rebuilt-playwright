@@ -73,7 +73,7 @@ jobs:
       id: deploy-to-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'dev-rebuild-nantes'
+        app-name: '2023-dev-rebuild-playwright'
         slot-name: 'Production'
         publish-profile: ${{ secrets.PUBLISHPROFILE_DEV_AZURE }}
         package: .

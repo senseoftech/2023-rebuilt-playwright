@@ -10,10 +10,9 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  build-website:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v3
     - name: Setup .NET
@@ -35,3 +34,25 @@ jobs:
         name: Website
         path: ./release
         
+  build-automated-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./tests/
+      - name: Build
+        run: dotnet build --no-restore -c Release
+        working-directory: ./tests/
+      - name: Publish
+        run: dotnet publish ./src/Sot.Rebuild.AutomatedTests.csproj -c Release -o ./tests --no-restore --no-build
+        
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3.1.3
+        with:
+          name: AutomatedTests
+          path: ./tests

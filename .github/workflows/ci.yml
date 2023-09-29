@@ -74,9 +74,8 @@ jobs:
       uses: azure/webapps-deploy@v2
       with:
         app-name: '2023-dev-rebuild-playwright'
-        slot-name: 'Production'
         publish-profile: ${{ secrets.PUBLISHPROFILE_DEV_AZURE }}
-        package: .
+        package: website
 
   test-dev: 
     runs-on: ubuntu-latest
@@ -107,7 +106,7 @@ jobs:
         app-name: 'staging-rebuild-nantes'
         slot-name: 'Production'
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_3C975FA35F2A4D9E90E9DBB4F556695D }}
-        package: .
+        package: website
 
   test-staging: 
     runs-on: ubuntu-latest

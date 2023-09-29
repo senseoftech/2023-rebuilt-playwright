@@ -1,7 +1,7 @@
 # Playwright - La pièce maîtresse du spectacle automatisé !
 
 📅 Date : 2 octobre  
-📍 Conférence : Rebuild
+🎙️ Conférence : Rebuild  
 📍 Lieu : Nantes
 
 ## Présentateurs
@@ -30,3 +30,4 @@ Bienvenue à notre session sur Playwright ! Dans cette session, nous allons intr
 
 - [Site officiel de Playwright](https://playwright.dev/)
 - [Documentation Playwright pour .NET](https://playwright.dev/dotnet/docs/intro)
+- [Discord Server](https://discord.com/servers/playwright-807756831384403968)

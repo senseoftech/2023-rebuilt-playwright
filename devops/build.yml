@@ -13,7 +13,6 @@ stages:
       azureWebUrl: https://dev-rebuild-nantes.azurewebsites.net
 
   - template: deploy-template/deploy.yml
-    dependsOn:
     parameters:
       environmentShortName: staging
       environmentName: Rebuild-Website-Staging

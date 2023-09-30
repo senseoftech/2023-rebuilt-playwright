@@ -133,7 +133,15 @@ stages:
              downloadType: 'single'
              artifactName: 'automated-tests'
              downloadPath: '$(System.ArtifactsDirectory)'
-          
+        
+         - task: ExtractFiles@1
+           displayName: Extract archive automated-tests
+           inputs:
+            archiveFilePatterns: '**/*.zip'
+            destinationFolder: '$(System.ArtifactsDirectory)/tests'
+            cleanDestinationFolder: true
+            overwriteExistingFiles: false
+
          - task: UseDotNet@2
            displayName: "Use .Net sdk"
            inputs:
@@ -145,7 +153,7 @@ stages:
              command: 'test'
              projects: '*Tests.dll'
              testRunTitle: 'Test automated dev'
-             workingDirectory: '$(System.ArtifactsDirectory)'
+             workingDirectory: '$(System.ArtifactsDirectory)/tests'
       
 
 

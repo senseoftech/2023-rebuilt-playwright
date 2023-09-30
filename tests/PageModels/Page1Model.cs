@@ -1,17 +1,18 @@
-using Microsoft.Playwright;
+﻿using Microsoft.Playwright;
 using Microsoft.Playwright.MSTest;
 using Sot.Rebuild.AutomatedTests.Helpers;
+using System;
 using System.Threading.Tasks;
 
 namespace Sot.Rebuild.AutomatedTests.PageModels;
 
-internal class HomePageModel
+internal class Page1Model
 {
     private readonly IPage _page;
     private readonly PageContextHelper _context;
     private readonly PlaywrightTest _playwrightTest;
 
-    public HomePageModel(
+    public Page1Model(
         IPage page,
         Helpers.PageContextHelper context,
         PlaywrightTest playwrightTest)
@@ -27,9 +28,14 @@ internal class HomePageModel
         await _playwrightTest.Expect(_page).ToHaveTitleAsync("Playwright Demo - Rebuild");
     }
 
-    public async Task<Page1Model> ClickOnButtonForPage1Async()
+    public async Task ScrollToLastSectionAsync()
     {
-        await _page.GetByTestId("go-page1").ClickAsync();
-        return new Page1Model(_page, _context, _playwrightTest);
+        await _page.GetByRole(AriaRole.Heading, new() { Name = "No server? No problem." }).ScrollIntoViewIfNeededAsync();
+    }
+
+    public async Task<PlanningPageModel> ClickToPlanningAsync()
+    {
+        await _page.GetByTestId("go-to-planning").ClickAsync();
+        return new PlanningPageModel(_page, _context, _playwrightTest);
     }
 }

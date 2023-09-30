@@ -1,9 +1,5 @@
-
-
 trigger:
 - main
-
-
 
 stages:   
 - stage: builds

@@ -116,9 +116,6 @@ stages:
         environment:
           name: Rebuild-Website-Development
         strategy:
-          matrix:
-            "dev":
-              environment: 'dev'
           runOnce:
             deploy:
               steps:

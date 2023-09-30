@@ -1,0 +1,48 @@
+
+
+trigger:
+- main
+
+
+
+stages:   
+- stage: builds
+  pool:
+    vmImage: ubuntu-latest
+  jobs: 
+  - job: build-website
+    steps:
+
+    - task: UseDotNet@2
+      displayName: "Use .Net sdk"
+      inputs:
+        version: 7.x
+
+
+    - task: DotNetCoreCLI@2
+      name: dotnet_restore
+      displayName: dotnet restore website
+      inputs:
+        command: 'restore'
+        projects: 'src/**/*.csproj'
+        feedsToUse: 'select'
+        argument: "--nologo"
+
+    - task: DotNetCoreCLI@2
+      name: dotnet_build
+      displayName: dotnet build website
+      inputs:
+        command: 'build'
+        arguments: '-c Release --no-restore'
+
+    - task: DotNetCoreCLI@2
+      name: dotnet_publish
+      condition: succeeded()
+      displayName: dotnet publish website
+      inputs:
+        command: 'publish'
+        projects: 'src/**/*Web.csproj'
+        publishWebProjects: false
+        arguments: "-c Release --output $(build.artifactstagingdirectory)/web --no-restore"
+  
+

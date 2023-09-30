@@ -30,7 +30,7 @@ stages:
               arguments: "-c Release --no-restore"
 
           - task: DotNetCoreCLI@2
-            name: dotnetbuild
+            name: dotnettestwebsite
             displayName: dotnet test website
             inputs:
               command: "test"

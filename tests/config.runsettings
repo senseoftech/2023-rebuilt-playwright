@@ -2,7 +2,7 @@
 <RunSettings>
 	<TestRunParameters>
 		<Parameter name="websiteUrl" value="https://staging-rebuild-nantes.azurewebsites.net" />
-		<Parameter name="environment" value="local" />
+		<Parameter name="environment" value="Development" />
 	</TestRunParameters>
 
 </RunSettings>

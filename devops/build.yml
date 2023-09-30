@@ -47,4 +47,44 @@ stages:
         PathtoPublish: "$(build.artifactstagingdirectory)/web"
         ArtifactName: "website"
   
+  - job: build_automated_tests
+    steps:
+
+    - task: UseDotNet@2
+      displayName: "Use .Net sdk"
+      inputs:
+        version: 7.x
+
+    - task: DotNetCoreCLI@2
+      name: dotnetrestore
+      displayName: dotnet restore automated tests
+      inputs:
+        command: 'restore'
+        projects: 'tests/*.csproj'
+        feedsToUse: 'select'
+
+    - task: DotNetCoreCLI@2
+      name: dotnetbuild
+      displayName: dotnet build automated tests
+      inputs:
+        command: 'build'
+        projects: 'tests/*.csproj'
+        arguments: '-c Release --no-restore'
+
+    - task: DotNetCoreCLI@2
+      name: dotnetpublish
+      condition: succeeded()
+      displayName: dotnet publish automated tests
+      inputs:
+        command: 'publish'
+        projects: 'tests/*.csproj'
+        publishWebProjects: false
+        arguments: "-c Release --output $(build.artifactstagingdirectory)/automated-tests --no-restore"
+
+    - task: PublishBuildArtifacts@1
+      condition: succeeded()
+      displayName: "Publish Artifact: Automated Tests"
+      inputs:
+        PathtoPublish: "$(build.artifactstagingdirectory)/automated-tests"
+        ArtifactName: "automated-tests"
 

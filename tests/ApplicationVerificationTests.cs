@@ -18,5 +18,3 @@ public class ApplicationVerificationTests : BasePageTest
         await PageContext.TakeScreenshotAsync(page.GetEnvironnementLocator());
     }
 }
-
-

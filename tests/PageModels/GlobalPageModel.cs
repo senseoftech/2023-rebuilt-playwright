@@ -35,6 +35,6 @@ public class GlobalPageModel
 
     public ILocator GetEnvironnementLocator()
     {
-        return _page.GetByTestId("Environment");
+        return _page.GetByTestId("environment");
     }
 }

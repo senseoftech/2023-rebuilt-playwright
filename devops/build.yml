@@ -168,11 +168,11 @@ stages:
 
                 $appUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""websiteUrl""]")
 
-                $appUrl.SetAttribute("value","https://staging-rebuild-nantes.azurewebsites.net/")
+                $appUrl.SetAttribute("value","https://dev-rebuild-nantes.azurewebsites.net/")
 
                 $envUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""environment""]")
 
-                $envUrl.SetAttribute("value","Development")
+                $envUrl.SetAttribute("value","development")
 
                 $configxml.Save("$(System.WorkFolder)/tests/config.runsettings")
 

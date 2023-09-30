@@ -1,182 +1,190 @@
 trigger:
-- main
+  - main
 
-stages:   
-- stage: builds
-  pool:
-    vmImage: ubuntu-latest
-  jobs: 
-  - job: build_website
-    steps:
+stages:
+  - stage: builds
+    pool:
+      vmImage: ubuntu-latest
+    jobs:
+      - job: build_website
+        steps:
+          - task: UseDotNet@2
+            displayName: "Use .Net sdk"
+            inputs:
+              version: 7.x
 
-    - task: UseDotNet@2
-      displayName: "Use .Net sdk"
-      inputs:
-        version: 7.x
+          - task: DotNetCoreCLI@2
+            name: dotnetrestore
+            displayName: dotnet restore website
+            inputs:
+              command: "restore"
+              projects: "src/**/*.csproj"
+              feedsToUse: "select"
 
-    - task: DotNetCoreCLI@2
-      name: dotnetrestore
-      displayName: dotnet restore website
-      inputs:
-        command: 'restore'
-        projects: 'src/**/*.csproj'
-        feedsToUse: 'select'
+          - task: DotNetCoreCLI@2
+            name: dotnetbuild
+            displayName: dotnet build website
+            inputs:
+              command: "build"
+              projects: "src/**/*Web.csproj"
+              arguments: "-c Release --no-restore"
 
-    - task: DotNetCoreCLI@2
-      name: dotnetbuild
-      displayName: dotnet build website
-      inputs:
-        command: 'build'
-        projects: 'src/**/*Web.csproj'
-        arguments: '-c Release --no-restore'
+          - task: DotNetCoreCLI@2
+            name: dotnetpublish
+            condition: succeeded()
+            displayName: dotnet publish website
+            inputs:
+              command: "publish"
+              projects: "src/**/*Web.csproj"
+              publishWebProjects: false
+              arguments: "-c Release --output $(build.artifactstagingdirectory)/web --no-restore"
 
-    - task: DotNetCoreCLI@2
-      name: dotnetpublish
-      condition: succeeded()
-      displayName: dotnet publish website
-      inputs:
-        command: 'publish'
-        projects: 'src/**/*Web.csproj'
-        publishWebProjects: false
-        arguments: "-c Release --output $(build.artifactstagingdirectory)/web --no-restore"
+          - task: PublishBuildArtifacts@1
+            condition: succeeded()
+            displayName: "Publish Artifact: Website"
+            inputs:
+              PathtoPublish: "$(build.artifactstagingdirectory)/web"
+              ArtifactName: "website"
 
-    - task: PublishBuildArtifacts@1
-      condition: succeeded()
-      displayName: "Publish Artifact: Website"
-      inputs:
-        PathtoPublish: "$(build.artifactstagingdirectory)/web"
-        ArtifactName: "website"
-  
-  - job: build_automated_tests
-    dependsOn: []
-    steps:
+      - job: build_automated_tests
+        dependsOn: []
+        steps:
+          - task: UseDotNet@2
+            displayName: "Use .Net sdk"
+            inputs:
+              version: 7.x
 
-    - task: UseDotNet@2
-      displayName: "Use .Net sdk"
-      inputs:
-        version: 7.x
+          - task: DotNetCoreCLI@2
+            name: dotnetrestore
+            displayName: dotnet restore automated tests
+            inputs:
+              command: "restore"
+              projects: "tests/*.csproj"
+              feedsToUse: "select"
 
-    - task: DotNetCoreCLI@2
-      name: dotnetrestore
-      displayName: dotnet restore automated tests
-      inputs:
-        command: 'restore'
-        projects: 'tests/*.csproj'
-        feedsToUse: 'select'
+          - task: DotNetCoreCLI@2
+            name: dotnetbuild
+            displayName: dotnet build automated tests
+            inputs:
+              command: "build"
+              projects: "tests/*.csproj"
+              arguments: "-c Release --no-restore"
 
-    - task: DotNetCoreCLI@2
-      name: dotnetbuild
-      displayName: dotnet build automated tests
-      inputs:
-        command: 'build'
-        projects: 'tests/*.csproj'
-        arguments: '-c Release --no-restore'
+          - task: DotNetCoreCLI@2
+            name: dotnetpublish
+            condition: succeeded()
+            displayName: dotnet publish automated tests
+            inputs:
+              command: "publish"
+              projects: "tests/*.csproj"
+              publishWebProjects: false
+              arguments: "-c Release --output $(build.artifactstagingdirectory)/automated-tests --no-restore"
 
-    - task: DotNetCoreCLI@2
-      name: dotnetpublish
-      condition: succeeded()
-      displayName: dotnet publish automated tests
-      inputs:
-        command: 'publish'
-        projects: 'tests/*.csproj'
-        publishWebProjects: false
-        arguments: "-c Release --output $(build.artifactstagingdirectory)/automated-tests --no-restore"
+          - task: PublishBuildArtifacts@1
+            condition: succeeded()
+            displayName: "Publish Artifact: Automated Tests"
+            inputs:
+              PathtoPublish: "$(build.artifactstagingdirectory)/automated-tests"
+              ArtifactName: "automated-tests"
 
-    - task: PublishBuildArtifacts@1
-      condition: succeeded()
-      displayName: "Publish Artifact: Automated Tests"
-      inputs:
-        PathtoPublish: "$(build.artifactstagingdirectory)/automated-tests"
-        ArtifactName: "automated-tests"
+  - stage: dev_env
+    dependsOn: builds
+    jobs:
+      - deployment: deploy_to_dev
+        displayName: Deploy to dev env
+        pool:
+          vmImage: ubuntu-latest
+        environment:
+          name: Rebuild-Website-Development
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadBuildArtifacts@1
+                  displayName: Download website artifact
+                  inputs:
+                    buildType: "current"
+                    downloadType: "single"
+                    artifactName: "website"
+                    downloadPath: "$(System.ArtifactsDirectory)"
 
-- stage: dev_env
-  dependsOn: builds
-  jobs:
-    - deployment: deploy_to_dev
-      displayName: Deploy to dev env
-      pool:
-        vmImage: ubuntu-latest
-      environment:
-        name: Rebuild-Website-Development
-      strategy: 
-        runOnce:
-          deploy:
-            steps:
-            - task: DownloadBuildArtifacts@1
-              displayName: Download website artifact
-              inputs:
-                buildType: 'current'
-                downloadType: 'single'
-                artifactName: 'website'
-                downloadPath: '$(System.ArtifactsDirectory)'
+                - task: AzureRmWebAppDeployment@4
+                  displayName: Publish website to dev
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    azureSubscription: "Microsoft Azure Sponsorship(939a2510-ec6f-4af4-a7c7-57509096c191)"
+                    appType: "webAppLinux"
+                    WebAppName: "dev-rebuild-nantes"
+                    packageForLinux: "$(System.ArtifactsDirectory)/**/*.zip"
+                    RuntimeStack: "DOTNETCORE|7.0"
 
-            - task: AzureRmWebAppDeployment@4
-              displayName: Publish website to dev
-              inputs:
-                ConnectionType: 'AzureRM'
-                azureSubscription: 'Microsoft Azure Sponsorship(939a2510-ec6f-4af4-a7c7-57509096c191)'
-                appType: 'webAppLinux'
-                WebAppName: 'dev-rebuild-nantes'
-                packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
-                RuntimeStack: 'DOTNETCORE|7.0'
-        
-    - job: 
-      displayName: Test environment
-      dependsOn: [deploy_to_dev]
-      pool:
-        vmImage: ubuntu-latest
-      steps:
-         - checkout: none
-           displayName: prevent to checkout code
-         - task: DownloadBuildArtifacts@1
-           displayName: Download automated-tests artifact
-           inputs:
-             buildType: 'current'
-             downloadType: 'single'
-             artifactName: 'automated-tests'
-             downloadPath: '$(System.ArtifactsDirectory)'
-        
-         - task: ExtractFiles@1
-           displayName: Extract archive automated-tests
-           inputs:
-            archiveFilePatterns: '$(System.ArtifactsDirectory)/**/*.zip'
-            destinationFolder: '$(System.WorkFolder)/tests'
-            cleanDestinationFolder: true
-            overwriteExistingFiles: false
+      - job:
+        displayName: Test environment
+        dependsOn: [deploy_to_dev]
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: none
+            displayName: prevent to checkout code
+          - task: DownloadBuildArtifacts@1
+            displayName: Download automated-tests artifact
+            inputs:
+              buildType: "current"
+              downloadType: "single"
+              artifactName: "automated-tests"
+              downloadPath: "$(System.ArtifactsDirectory)"
 
-         - task: UseDotNet@2
-           displayName: "Use .Net sdk"
-           inputs:
-             version: 7.x
-        
-         - task: PowerShell@2
-           displayName: 'Install Playwright'
-           inputs:
-             targetType: 'inline'
-             script: './playwright.ps1 install'
-             workingDirectory: '$(System.WorkFolder)/tests'
+          - task: ExtractFiles@1
+            displayName: Extract archive automated-tests
+            inputs:
+              archiveFilePatterns: "$(System.ArtifactsDirectory)/**/*.zip"
+              destinationFolder: "$(System.WorkFolder)/tests"
+              cleanDestinationFolder: true
+              overwriteExistingFiles: false
 
-         - task: DotNetCoreCLI@2
-           displayName: "Test automated tests"
-           inputs:
-             command: 'custom'
-             projects: '$(System.WorkFolder)/tests/Sot.Rebuild.AutomatedTests.dll'
-             custom: 'test'
-             arguments: '--logger "trx;logfilename=testResults.trx"'
-             workingDirectory: '$(System.WorkFolder)/tests'
-        
-         - task: PublishTestResults@2
-           inputs:
-             testResultsFormat: 'VSTest'
-             testResultsFiles: |
-               **/TEST-*.xml
-               **/test*.trx
-             searchFolder: '$(System.WorkFolder)'
-             mergeTestResults: true
-             testRunTitle: 'AutomatedTest-Dev'
+          - task: PowerShell@2
+            inputs:
+              targetType: "inline"
+              script: |
+                $configxml = [xml](Get-Content $(System.WorkFolder)/tests/config.runsettings)
 
+                $appUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""websiteUrl""]")
 
-      
+                $appUrl.SetAttribute("value","https://staging-rebuild-nantes.azurewebsites.net/")
 
+                $envUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""environment""]")
 
+                $envUrl.SetAttribute("value","Development")
 
+                $configxml.Save($(System.WorkFolder)/tests/config.runsettings))
+
+          - task: UseDotNet@2
+            displayName: "Use .Net sdk"
+            inputs:
+              version: 7.x
+
+          - task: PowerShell@2
+            displayName: "Install Playwright"
+            inputs:
+              targetType: "inline"
+              script: "./playwright.ps1 install"
+              workingDirectory: "$(System.WorkFolder)/tests"
+
+          - task: DotNetCoreCLI@2
+            displayName: "Test automated tests"
+            inputs:
+              command: "custom"
+              projects: "$(System.WorkFolder)/tests/Sot.Rebuild.AutomatedTests.dll"
+              custom: "test"
+              arguments: ' -s config.runsettings --logger "trx;logfilename=testResults.trx"'
+              workingDirectory: "$(System.WorkFolder)/tests"
+
+          - task: PublishTestResults@2
+            inputs:
+              testResultsFormat: "VSTest"
+              testResultsFiles: |
+                **/TEST-*.xml
+                **/test*.trx
+              searchFolder: "$(System.WorkFolder)"
+              mergeTestResults: true
+              testRunTitle: "AutomatedTest-Dev"

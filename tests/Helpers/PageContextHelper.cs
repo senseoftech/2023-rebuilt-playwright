@@ -14,11 +14,20 @@ public class PageContextHelper
     private readonly TestContext _testContext;
 
     public PageContextHelper(
-        IPage page, 
+        IPage page,
         TestContext testContext)
     {
         _page = page;
         _testContext = testContext;
+    }
+
+    public string GetAppUrl()
+    {
+        return _testContext.Properties["websiteUrl"] as string;
+    }
+    public string GetEnvironment()
+    {
+        return _testContext.Properties["environment"] as string;
     }
 
     public async Task TakeScreenshotAsync()
@@ -26,6 +35,18 @@ public class PageContextHelper
         var fileName = $"{DateTime.UtcNow:yyyyMMdd-HHmmss-FFFFF}.png";
 
         await _page.ScreenshotAsync(new()
+        {
+            Path = fileName
+        });
+
+        _ressources.Add(fileName);
+    }
+
+    public async Task TakeScreenshotAsync(ILocator locator)
+    {
+        var fileName = $"{DateTime.UtcNow:yyyyMMdd-HHmmss-FFFFF}.png";
+
+        await locator.ScreenshotAsync(new()
         {
             Path = fileName
         });
@@ -59,4 +80,5 @@ public class PageContextHelper
             Sources = true,
         });
     }
+
 }

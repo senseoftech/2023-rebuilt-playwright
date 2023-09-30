@@ -6,14 +6,13 @@ stages:
   pool:
     vmImage: ubuntu-latest
   jobs: 
-  - job: build-website
+  - job: build_website
     steps:
 
     - task: UseDotNet@2
       displayName: "Use .Net sdk"
       inputs:
         version: 7.x
-
 
     - task: DotNetCoreCLI@2
       name: dotnetrestore
@@ -22,7 +21,6 @@ stages:
         command: 'restore'
         projects: 'src/**/*.csproj'
         feedsToUse: 'select'
-        argument: "--nologo"
 
     - task: DotNetCoreCLI@2
       name: dotnetbuild

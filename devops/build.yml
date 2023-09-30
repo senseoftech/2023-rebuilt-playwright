@@ -156,7 +156,7 @@ stages:
 
                 $envUrl.SetAttribute("value","Development")
 
-                $configxml.Save($(System.WorkFolder)/tests/config.runsettings)
+                $configxml.Save("$(System.WorkFolder)/tests/config.runsettings")
 
           - task: UseDotNet@2
             displayName: "Use .Net sdk"

@@ -34,7 +34,7 @@ stages:
             displayName: dotnet test website
             inputs:
               command: "test"
-              projects: "src/**/*tests.csproj"
+              projects: "src/**/*Tests.csproj"
               arguments: '--logger "trx;logfilename=testResults.trx"'
 
           - task: PublishTestResults@2

@@ -1,13 +1,33 @@
+parameters:
+  - name: environmentShortName
+    type: string
+
+  - name: environmentName
+    type: string
+
+  - name: environment
+    type: string
+
+  - name: azureSubscription
+    type: string
+    default: "Microsoft Azure Sponsorship(939a2510-ec6f-4af4-a7c7-57509096c191)"
+
+  - name: azureWebAppName
+    type: string
+
+  - name: azureWebUrl
+    type: string
+
 stages:
-  - stage: dev_env
+  - stage: ${{ parameters.environmentShortName}}_env
     dependsOn: builds
     jobs:
-      - deployment: deploy_to_dev
-        displayName: Deploy to dev env
+      - deployment: deploy_to_${{ parameters.environmentShortName}}
+        displayName: Deploy to ${{ parameters.environmentShortName}} env
         pool:
           vmImage: ubuntu-latest
         environment:
-          name: Rebuild-Website-Development
+          name: ${{ parameters.environmentName}}
         strategy:
           runOnce:
             deploy:
@@ -24,9 +44,9 @@ stages:
                   displayName: Publish website to dev
                   inputs:
                     ConnectionType: "AzureRM"
-                    azureSubscription: "Microsoft Azure Sponsorship(939a2510-ec6f-4af4-a7c7-57509096c191)"
+                    azureSubscription: ${{ parameters.azureSubscription}}
                     appType: "webAppLinux"
-                    WebAppName: "dev-rebuild-nantes"
+                    WebAppName: ${{ parameters.azureWebAppName}}
                     packageForLinux: "$(System.ArtifactsDirectory)/**/*.zip"
                     RuntimeStack: "DOTNETCORE|7.0"
 
@@ -58,11 +78,11 @@ stages:
 
                       $appUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""websiteUrl""]")
 
-                      $appUrl.SetAttribute("value","https://dev-rebuild-nantes.azurewebsites.net/")
+                      $appUrl.SetAttribute("value","${{ parameters.azureWebUrl }}")
 
                       $envUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""environment""]")
 
-                      $envUrl.SetAttribute("value","development")
+                      $envUrl.SetAttribute("value","${{ parameters.environment}}")
 
                       $configxml.Save("$(System.WorkFolder)/tests/config.runsettings")
 
@@ -95,4 +115,4 @@ stages:
                       **/test*.trx
                     searchFolder: "$(System.WorkFolder)"
                     mergeTestResults: true
-                    testRunTitle: "AutomatedTest-Dev"
+                    testRunTitle: "AutomatedTest-${{ parameters.environmentShortName }}"

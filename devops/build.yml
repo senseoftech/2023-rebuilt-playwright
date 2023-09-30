@@ -5,3 +5,9 @@ stages:
   - template: build-template/build.yml
 
   - template: deploy-template/deploy.yml
+    parameters:
+      environmentShortName: dev
+      environmentName: Rebuild-Website-Development
+      environment: development
+      azureWebAppName: dev-rebuild-nantes
+      azureWebUrl: https://dev-rebuild-nantes.azurewebsites.net

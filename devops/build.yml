@@ -48,6 +48,7 @@ stages:
         ArtifactName: "website"
   
   - job: build_automated_tests
+    dependsOn: []
     steps:
 
     - task: UseDotNet@2
@@ -87,4 +88,40 @@ stages:
       inputs:
         PathtoPublish: "$(build.artifactstagingdirectory)/automated-tests"
         ArtifactName: "automated-tests"
+
+- stage: dev_env
+  dependsOn: builds
+  jobs:
+    - deployment: deploy_to_dev
+      displayName: Deploy to dev env
+      pool:
+        vmImage: ubuntu-latest
+      environment:
+        name: Rebuild-Website-Development
+      strategy: 
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadBuildArtifacts@1
+              displayName: Download website artifact
+              inputs:
+                buildType: 'current'
+                downloadType: 'single'
+                artifactName: 'website'
+                downloadPath: '$(System.ArtifactsDirectory)'
+
+            - task: AzureRmWebAppDeployment@4
+              displayName: Publish website to dev
+              inputs:
+                ConnectionType: 'AzureRM'
+                azureSubscription: 'Microsoft Azure Sponsorship(939a2510-ec6f-4af4-a7c7-57509096c191)'
+                appType: 'webAppLinux'
+                WebAppName: 'dev-rebuild-nantes'
+                packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
+                RuntimeStack: 'DOTNETCORE|7.0'
+           
+
+      
+
+
 

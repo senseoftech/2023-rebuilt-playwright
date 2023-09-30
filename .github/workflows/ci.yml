@@ -93,11 +93,8 @@ jobs:
       with:
         dotnet-version: 7.0.x
         
-    - name: Extract Automated
-      run: unzip ./AutomatedTests.zip -d ./tests
-
     - name: Publish
-      run: dotnet test ./tests/Sot.Rebuild.AutomatedTests.dll
+      run: dotnet test ./Sot.Rebuild.AutomatedTests.dll
 
   deploy-to-staging:
     runs-on: ubuntu-latest

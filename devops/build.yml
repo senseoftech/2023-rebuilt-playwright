@@ -137,8 +137,8 @@ stages:
          - task: ExtractFiles@1
            displayName: Extract archive automated-tests
            inputs:
-            archiveFilePatterns: '**/*.zip'
-            destinationFolder: '$(System.ArtifactsDirectory)/tests'
+            archiveFilePatterns: '$(System.ArtifactsDirectory)/*.zip'
+            destinationFolder: '$(System.WorkFolder)/tests'
             cleanDestinationFolder: true
             overwriteExistingFiles: false
 
@@ -153,7 +153,7 @@ stages:
              command: 'test'
              projects: '*Tests.dll'
              testRunTitle: 'Test automated dev'
-             workingDirectory: '$(System.ArtifactsDirectory)/tests'
+             workingDirectory: '$(System.WorkFolder)/tests'
       
 
 

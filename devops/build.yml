@@ -126,6 +126,8 @@ stages:
       pool:
         vmImage: ubuntu-latest
       steps:
+         - checkout: none
+           displayName: prevent to checkout code
          - task: DownloadBuildArtifacts@1
            displayName: Download automated-tests artifact
            inputs:
@@ -150,9 +152,10 @@ stages:
          - task: DotNetCoreCLI@2
            displayName: "Test automated tests"
            inputs:
-             command: 'test'
-             projects: '*Tests.dll'
-             testRunTitle: 'Test automated dev'
+             command: 'custom'
+             projects: '$(System.WorkFolder)/tests/Sot.Rebuild.AutomatedTests.dll'
+             custom: 'test'
+             arguments: '--logger "trx;logfilename=testResults.trx"'
              workingDirectory: '$(System.WorkFolder)/tests'
       
 

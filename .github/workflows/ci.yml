@@ -83,7 +83,7 @@ jobs:
       - deploy-to-dev
     steps: 
     - name: Download a Build Artifact
-      uses: actions/download-artifact@v2.1.1
+      uses: actions/download-artifact@v3
       with:
         name: AutomatedTests
         path: .
@@ -108,7 +108,7 @@ jobs:
       - test-dev
     steps: 
     - name: Download a Build Artifact
-      uses: actions/download-artifact@v2.1.1
+      uses: actions/download-artifact@v3
       with:
         name: Website
         path: website
@@ -128,7 +128,7 @@ jobs:
       - deploy-to-staging
     steps: 
     - name: Download a Build Artifact
-      uses: actions/download-artifact@v2.1.1
+      uses: actions/download-artifact@v3
       with:
         name: AutomatedTests
         path: AutomatedTests

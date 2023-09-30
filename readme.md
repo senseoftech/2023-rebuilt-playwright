@@ -9,6 +9,10 @@
 - **Adrien Clerbois**
 - **Christophe Peugnet** (dit Toss)
 
+## DevOps
+
+[![Build Status](https://dev.azure.com/tartine-et-tech/rebuild-2023-nantes/_apis/build/status%2Fsenseoftech.2023-rebuilt-playwright?branchName=main)](https://dev.azure.com/tartine-et-tech/rebuild-2023-nantes/_build/latest?definitionId=3&branchName=main)
+
 ## Description
 
 Bienvenue à notre session sur Playwright ! Dans cette session, nous allons introduire Playwright sous le .NET Framework. Grâce à des exemples pratiques, nous explorerons cet outil puissant et montrerons comment il peut devenir la pièce maîtresse de votre spectacle automatisé.

@@ -157,7 +157,13 @@ stages:
              custom: 'test'
              arguments: '--logger "trx;logfilename=testResults.trx"'
              workingDirectory: '$(System.WorkFolder)/tests'
-      
+        
+         - task: PublishTestResults@2
+           inputs:
+             testResultsFormat: 'XUnit'
+             testResultsFiles: '**/TEST-*.xml'
+             mergeTestResults: true
+             testRunTitle: 'AutomatedTest-Dev'
 
 
       

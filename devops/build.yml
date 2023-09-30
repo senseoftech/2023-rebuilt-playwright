@@ -119,7 +119,35 @@ stages:
                 WebAppName: 'dev-rebuild-nantes'
                 packageForLinux: '$(System.ArtifactsDirectory)/**/*.zip'
                 RuntimeStack: 'DOTNETCORE|7.0'
-           
+        
+    - job: 
+      displayName: Test environment
+      dependsOn: [deploy_to_dev]
+      pool:
+        vmImage: ubuntu-latest
+      steps:
+         - task: DownloadBuildArtifacts@1
+           displayName: Download automated-tests artifact
+           inputs:
+             buildType: 'current'
+             downloadType: 'single'
+             artifactName: 'automated-tests'
+             downloadPath: '$(System.ArtifactsDirectory)'
+          
+         - task: UseDotNet@2
+           displayName: "Use .Net sdk"
+           inputs:
+             version: 7.x
+
+         - task: DotNetCoreCLI@2
+           displayName: "Test automated tests"
+           inputs:
+             command: 'test'
+             projects: '*Tests.dll'
+             testRunTitle: 'Test automated dev'
+             workingDirectory: '$(System.ArtifactsDirectory)'
+      
+
 
       
 

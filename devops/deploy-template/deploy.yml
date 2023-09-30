@@ -19,11 +19,11 @@ parameters:
     type: string
 
 stages:
-  - stage: ${{ parameters.environmentName}}_env
+  - stage: ${{ parameters.environment}}_env
     dependsOn: ${{ parameters.dependsOn }}
     jobs:
-      - deployment: deploy_to_${{ parameters.environmentName}}
-        displayName: Deploy to ${{ parameters.environmentName}} env
+      - deployment: deploy_to_${{ parameters.environment}}
+        displayName: Deploy to ${{ parameters.environment}} env
         pool:
           vmImage: ubuntu-latest
         environment:
@@ -115,4 +115,4 @@ stages:
                       **/test*.trx
                     searchFolder: "$(System.WorkFolder)"
                     mergeTestResults: true
-                    testRunTitle: "AutomatedTest-${{ parameters.environmentName }}-results"
+                    testRunTitle: "AutomatedTest-${{ parameters.environment }}-results"

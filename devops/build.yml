@@ -33,9 +33,10 @@ stages:
             name: dotnettestwebsite
             displayName: dotnet test website
             inputs:
-              command: "test"
-              projects: "src/**/*Tests.csproj"
+              command: 'test'
+              projects: 'src/**/*Tests.csproj'
               arguments: '--logger "trx;logfilename=testResults.trx"'
+              publishTestResults: false
 
           - task: PublishTestResults@2
             inputs:
@@ -115,6 +116,9 @@ stages:
         environment:
           name: Rebuild-Website-Development
         strategy:
+          matrix:
+            "dev":
+              environment: 'dev'
           runOnce:
             deploy:
               steps:
@@ -135,74 +139,70 @@ stages:
                     WebAppName: "dev-rebuild-nantes"
                     packageForLinux: "$(System.ArtifactsDirectory)/**/*.zip"
                     RuntimeStack: "DOTNETCORE|7.0"
+            
+            routeTraffic:              
+              steps:
+                - checkout: none
+                  displayName: prevent to checkout code
+                - task: DownloadBuildArtifacts@1
+                  displayName: Download automated-tests artifact
+                  inputs:
+                    buildType: "current"
+                    downloadType: "single"
+                    artifactName: "automated-tests"
+                    downloadPath: "$(System.ArtifactsDirectory)"
 
-      - job:
-        displayName: Test environment
-        dependsOn: [deploy_to_dev]
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - checkout: none
-            displayName: prevent to checkout code
-          - task: DownloadBuildArtifacts@1
-            displayName: Download automated-tests artifact
-            inputs:
-              buildType: "current"
-              downloadType: "single"
-              artifactName: "automated-tests"
-              downloadPath: "$(System.ArtifactsDirectory)"
+                - task: ExtractFiles@1
+                  displayName: Extract archive automated-tests
+                  inputs:
+                    archiveFilePatterns: "$(System.ArtifactsDirectory)/**/*.zip"
+                    destinationFolder: "$(System.WorkFolder)/tests"
+                    cleanDestinationFolder: true
+                    overwriteExistingFiles: false
 
-          - task: ExtractFiles@1
-            displayName: Extract archive automated-tests
-            inputs:
-              archiveFilePatterns: "$(System.ArtifactsDirectory)/**/*.zip"
-              destinationFolder: "$(System.WorkFolder)/tests"
-              cleanDestinationFolder: true
-              overwriteExistingFiles: false
+                - task: PowerShell@2
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      $configxml = [xml](Get-Content $(System.WorkFolder)/tests/config.runsettings)
 
-          - task: PowerShell@2
-            inputs:
-              targetType: "inline"
-              script: |
-                $configxml = [xml](Get-Content $(System.WorkFolder)/tests/config.runsettings)
+                      $appUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""websiteUrl""]")
 
-                $appUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""websiteUrl""]")
+                      $appUrl.SetAttribute("value","https://dev-rebuild-nantes.azurewebsites.net/")
 
-                $appUrl.SetAttribute("value","https://dev-rebuild-nantes.azurewebsites.net/")
+                      $envUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""environment""]")
 
-                $envUrl = $configxml.SelectSingleNode("//RunSettings//TestRunParameters//Parameter[@name=""environment""]")
+                      $envUrl.SetAttribute("value","development")
 
-                $envUrl.SetAttribute("value","development")
+                      $configxml.Save("$(System.WorkFolder)/tests/config.runsettings")
 
-                $configxml.Save("$(System.WorkFolder)/tests/config.runsettings")
+                - task: UseDotNet@2
+                  displayName: "Use .Net sdk"
+                  inputs:
+                    version: 7.x
 
-          - task: UseDotNet@2
-            displayName: "Use .Net sdk"
-            inputs:
-              version: 7.x
+                - task: PowerShell@2
+                  displayName: "Install Playwright"
+                  inputs:
+                    targetType: "inline"
+                    script: "./playwright.ps1 install"
+                    workingDirectory: "$(System.WorkFolder)/tests"
 
-          - task: PowerShell@2
-            displayName: "Install Playwright"
-            inputs:
-              targetType: "inline"
-              script: "./playwright.ps1 install"
-              workingDirectory: "$(System.WorkFolder)/tests"
+                - task: DotNetCoreCLI@2
+                  displayName: "Test automated tests"
+                  inputs:
+                    command: "custom"
+                    projects: "$(System.WorkFolder)/tests/Sot.Rebuild.AutomatedTests.dll"
+                    custom: "test"
+                    arguments: ' -s config.runsettings --logger "trx;logfilename=testResults.trx"'
+                    workingDirectory: "$(System.WorkFolder)/tests"
 
-          - task: DotNetCoreCLI@2
-            displayName: "Test automated tests"
-            inputs:
-              command: "custom"
-              projects: "$(System.WorkFolder)/tests/Sot.Rebuild.AutomatedTests.dll"
-              custom: "test"
-              arguments: ' -s config.runsettings --logger "trx;logfilename=testResults.trx"'
-              workingDirectory: "$(System.WorkFolder)/tests"
-
-          - task: PublishTestResults@2
-            inputs:
-              testResultsFormat: "VSTest"
-              testResultsFiles: |
-                **/TEST-*.xml
-                **/test*.trx
-              searchFolder: "$(System.WorkFolder)"
-              mergeTestResults: true
-              testRunTitle: "AutomatedTest-Dev"
+                - task: PublishTestResults@2
+                  inputs:
+                    testResultsFormat: "VSTest"
+                    testResultsFiles: |
+                      **/TEST-*.xml
+                      **/test*.trx
+                    searchFolder: "$(System.WorkFolder)"
+                    mergeTestResults: true
+                    testRunTitle: "AutomatedTest-Dev"

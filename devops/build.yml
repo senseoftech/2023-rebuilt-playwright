@@ -148,6 +148,13 @@ stages:
            displayName: "Use .Net sdk"
            inputs:
              version: 7.x
+        
+         - task: PowerShell@2
+           displayName: 'Install Playwright'
+           inputs:
+             targetType: 'inline'
+             script: './playwright.ps1 install'
+             workingDirectory: '$(System.WorkFolder)/tests'
 
          - task: DotNetCoreCLI@2
            displayName: "Test automated tests"

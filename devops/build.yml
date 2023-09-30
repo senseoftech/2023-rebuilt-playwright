@@ -38,5 +38,12 @@ stages:
         projects: 'src/**/*Web.csproj'
         publishWebProjects: false
         arguments: "-c Release --output $(build.artifactstagingdirectory)/web --no-restore"
+
+    - task: PublishBuildArtifacts@1
+      condition: succeeded()
+      displayName: "Publish Artifact: Website"
+      inputs:
+        PathtoPublish: "$(build.artifactstagingdirectory)/web"
+        ArtifactName: "website"
   
 

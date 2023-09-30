@@ -2,6 +2,9 @@ parameters:
   - name: environmentShortName
     type: string
 
+  - name: dependsOn
+    type: object
+
   - name: environmentName
     type: string
 
@@ -20,7 +23,7 @@ parameters:
 
 stages:
   - stage: ${{ parameters.environmentShortName}}_env
-    dependsOn: builds
+    dependsOn: ${{ parameters.dependsOn }}
     jobs:
       - deployment: deploy_to_${{ parameters.environmentShortName}}
         displayName: Deploy to ${{ parameters.environmentShortName}} env

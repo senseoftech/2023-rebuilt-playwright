@@ -7,6 +7,7 @@ stages:
   - template: deploy-template/deploy.yml
     parameters:
       environmentShortName: dev
+      dependsOn: [builds]
       environmentName: Rebuild-Website-Development
       environment: development
       azureWebAppName: dev-rebuild-nantes
@@ -15,6 +16,7 @@ stages:
   - template: deploy-template/deploy.yml
     parameters:
       environmentShortName: staging
+      dependsOn: [dev_env]
       environmentName: Rebuild-Website-Staging
       environment: staging
       azureWebAppName: staging-rebuild-nantes

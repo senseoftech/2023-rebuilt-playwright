@@ -160,8 +160,11 @@ stages:
         
          - task: PublishTestResults@2
            inputs:
-             testResultsFormat: 'XUnit'
-             testResultsFiles: '**/TEST-*.xml'
+             testResultsFormat: 'VSTest'
+             testResultsFiles: |
+               **/TEST-*.xml
+               **/test*.trx
+             searchFolder: '$(System.WorkFolder)'
              mergeTestResults: true
              testRunTitle: 'AutomatedTest-Dev'
 

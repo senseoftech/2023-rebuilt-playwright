@@ -137,7 +137,7 @@ stages:
          - task: ExtractFiles@1
            displayName: Extract archive automated-tests
            inputs:
-            archiveFilePatterns: '$(System.ArtifactsDirectory)/*.zip'
+            archiveFilePatterns: '$(System.ArtifactsDirectory)/**/*.zip'
             destinationFolder: '$(System.WorkFolder)/tests'
             cleanDestinationFolder: true
             overwriteExistingFiles: false

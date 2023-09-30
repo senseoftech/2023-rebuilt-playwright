@@ -20,7 +20,7 @@ stages:
 
 
     - task: DotNetCoreCLI@2
-      name: dotnet_restore
+      name: dotnetrestore
       displayName: dotnet restore website
       inputs:
         command: 'restore'
@@ -29,14 +29,14 @@ stages:
         argument: "--nologo"
 
     - task: DotNetCoreCLI@2
-      name: dotnet_build
+      name: dotnetbuild
       displayName: dotnet build website
       inputs:
         command: 'build'
         arguments: '-c Release --no-restore'
 
     - task: DotNetCoreCLI@2
-      name: dotnet_publish
+      name: dotnetpublish
       condition: succeeded()
       displayName: dotnet publish website
       inputs:

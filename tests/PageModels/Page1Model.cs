@@ -24,18 +24,25 @@ internal class Page1Model
 
     public async Task GoToAsync()
     {
-        await _page.GotoAsync(_context.GetAppUrl());
-        await _playwrightTest.Expect(_page).ToHaveTitleAsync("Playwright Demo - Rebuild");
+        await _page
+            .GotoAsync(_context.GetAppUrl());
+        await _playwrightTest
+            .Expect(_page)
+            .ToHaveTitleAsync("Playwright Demo - Rebuild");
     }
 
     public async Task ScrollToLastSectionAsync()
     {
-        await _page.GetByRole(AriaRole.Heading, new() { Name = "No server? No problem." }).ScrollIntoViewIfNeededAsync();
+        await _page
+            .GetByRole(AriaRole.Heading, new() { Name = "No server? No problem." })
+            .ScrollIntoViewIfNeededAsync();
     }
 
     public async Task<PlanningPageModel> ClickToPlanningAsync()
     {
-        await _page.GetByTestId("go-to-planning").ClickAsync();
+        await _page
+            .GetByTestId("go-to-planning")
+            .ClickAsync();
         return new PlanningPageModel(_page, _context, _playwrightTest);
     }
 }
